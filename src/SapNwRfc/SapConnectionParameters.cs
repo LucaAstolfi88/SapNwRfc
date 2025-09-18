@@ -330,5 +330,30 @@ namespace SapNwRfc
                     return parameters;
                 });
         }
+
+         /// <summary>
+        /// Parses a connection string into a <see cref="SapConnectionParameters"/> object.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        /// <returns>The <see cref="SapConnectionParameters"/> instance.</returns>
+        public override string ToString()
+        {
+            var props = GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+            var parts = props
+                .Select(p =>
+                {
+                    if (!p.CanRead) return null;
+                    var val = p.GetValue(this) as string;
+                    if (string.IsNullOrEmpty(val)) return null;
+
+                   // var sapNameAttr = p.GetCustomAttribute<SapNameAttribute>();
+                    var key = p.Name;
+                    return $"{key}={val}";
+                })
+                .Where(s => s != null);
+
+            return string.Join(";", parts);
+        }
     }
 }
